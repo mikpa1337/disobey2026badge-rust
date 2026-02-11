@@ -1,0 +1,29 @@
+name: Build Examples
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: esp-rs/xtensa-toolchain@v1.5
+        with:
+          default: true
+          ldproxy: false
+
+      - run: cargo install espflash
+
+      - run: chmod +x build-all-examples.sh cargo_elf_to_esptool.sh
+
+      - run: ./build-all-examples.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: example-binaries
+          path: target/binaries/*.bin
