@@ -17,7 +17,7 @@ jobs:
           default: true
           ldproxy: false
 
-      - run: cargo install espflash
+      - run: cargo binstall espflash
 
       - run: chmod +x build-all-examples.sh cargo_elf_to_esptool.sh
 
