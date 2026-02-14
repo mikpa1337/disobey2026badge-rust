@@ -44,6 +44,7 @@ cargo run --release --example <name>
 |---|---|
 | `breakout` | Breakout game with paddle, ball, and bricks. LEDs flash on brick hits. D-pad to move, A to launch |
 | `skyroads` | Skyroads-style pseudo-3D game. Steer between lanes, jump over gaps and blocks, avoid tunnels. LEDs react to speed and state |
+| `snake` | Classic Snake game. Guide the snake to eat food and grow. D-pad to move, A to start/restart. Avoid walls and yourself. LEDs show score progression |
 | `space_shooter` | Side-scrolling space shooter using ST7789 hardware scrolling for the background. D-pad to move, A to fire. Features weapon cycling, procedural nebula background, and LED feedback |
 
 ### Demos
@@ -79,7 +80,7 @@ cargo run --release --example <name>
 
 Requires the `esp` Rust toolchain (`espup install`).
 
-## It doesn't work!
+## It doesn't work
 
 Before panicing, try:
 
