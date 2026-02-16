@@ -28,16 +28,6 @@ type SpiInterface<'a> = mipidsi::interface::SpiInterface<
 /// The badge's ST7789 display, ready to draw on with `embedded-graphics`.
 pub type Display<'a> = mipidsi::Display<SpiInterface<'a>, mipidsi::models::ST7789, Output<'a>>;
 
-/// StaticCell helper (local to this module to avoid macro import issues).
-macro_rules! mk_static {
-    ($t:ty, $val:expr) => {{
-        static STATIC_CELL: static_cell::StaticCell<$t> = static_cell::StaticCell::new();
-        #[deny(unused_attributes)]
-        let x = STATIC_CELL.uninit().write($val);
-        x
-    }};
-}
-
 impl<'a> From<DisplayResources<'a>> for Display<'a> {
     fn from(res: DisplayResources<'a>) -> Self {
         let (rx_buffer, rx_descriptors, tx_buffer, tx_descriptors) = dma_buffers!(32000);
@@ -65,7 +55,7 @@ impl<'a> From<DisplayResources<'a>> for Display<'a> {
         let cs = Output::new(res.cs, Level::High, OutputConfig::default());
         let spi_device = ExclusiveDevice::new(spi, cs, delay).unwrap();
 
-        let buffer = mk_static!([u8; 32000], [0_u8; 32000]);
+        let buffer = crate::mk_static!([u8; 32000], [0_u8; 32000]);
         let di = mipidsi::interface::SpiInterface::new(spi_device, dc, buffer);
 
         mipidsi::Builder::new(mipidsi::models::ST7789, di)
