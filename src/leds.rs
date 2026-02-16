@@ -2,8 +2,6 @@
 //!
 //! The badge has 10 RGB LEDs arranged in a strip.
 
-extern crate alloc;
-
 use defmt::error;
 use embassy_time::{
     Duration,
@@ -51,22 +49,20 @@ impl<'a> Leds<'a> {
             return;
         };
 
-        let pulses = self
-            .framebuffer
-            .iter()
-            .flat_map(|color| {
-                let c: palette::rgb::Rgb<palette::encoding::Srgb, u8> = color.into_format::<u8>();
-                // WS2812 expects GRB byte order
-                [
-                    Self::byte_to_pulses(c.green),
-                    Self::byte_to_pulses(c.red),
-                    Self::byte_to_pulses(c.blue),
-                ]
-                .into_iter()
-                .flatten()
-            })
-            .chain(core::iter::once(PulseCode::end_marker()))
-            .collect::<alloc::vec::Vec<_>>();
+        // 10 LEDs × 3 bytes × 8 bits + 1 end marker = 241 pulse codes
+        const PULSE_COUNT: usize = LED_COUNT * 24 + 1;
+        let mut pulses = [PulseCode::default(); PULSE_COUNT];
+        let mut idx = 0;
+        for color in &self.framebuffer {
+            let c: palette::rgb::Rgb<palette::encoding::Srgb, u8> = color.into_format::<u8>();
+            // WS2812 expects GRB byte order
+            for byte in [c.green, c.red, c.blue] {
+                let bp = Self::byte_to_pulses(byte);
+                pulses[idx..idx + 8].copy_from_slice(&bp);
+                idx += 8;
+            }
+        }
+        pulses[idx] = PulseCode::end_marker();
 
         let transaction = match channel.transmit(&pulses) {
             Ok(t) => t,
